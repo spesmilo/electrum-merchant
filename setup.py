@@ -1,31 +1,40 @@
+import argparse
+import os
+import platform
+import sys
+from setuptools import setup, find_packages
 
-import urllib, shutil, os
-from electrum import SimpleConfig
+appname = "electrum-merchant"
 
+if sys.version_info[:3] < (3, 5, 0):
+    sys.exit("Error: electrum-merchant requires Python version >= 3.5.0...")
 
-if __name__ == "__main__":
+def read(fname):
+    return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
-    config= SimpleConfig()
-    rdir = config.get('requests_dir')
-    if not rdir:
-        print("requests_dir not found in Electrum configuration")
-        exit(1)
-    if not os.path.exists(rdir):
-        os.mkdir(rdir)
-    index = os.path.join(rdir, 'index.html')
-    print("copying index.html")
-    src = os.path.join(os.path.dirname(__file__), 'www', 'index.html')
-    shutil.copy(src, index)
-    files = [
-        "https://code.jquery.com/jquery-1.9.1.min.js",
-        "https://raw.githubusercontent.com/davidshimjs/qrcodejs/master/qrcode.js",
-        "https://code.jquery.com/ui/1.10.3/jquery-ui.js",
-        "https://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css"
+setup(
+    name=appname,
+    packages=['electrum-merchant',],
+    version='0.1',
+    description='Electrum wallet - merchant add-ons',
+    long_description=read('README.rst'),
+    author='Thomas Voegtlin, Serge Victor',
+    author_email='electrum@random.re',
+    url='https://github.com/spesmilo/electrum-merchant',
+    license='MIT',
+    keywords='electrum, bitcoin, payment, merchant',
+    zip_safe=False,
+    include_package_data=True,
+    platforms='any',
+    download_url = 'https://github.com/spesmilo/electrum-merchant/tarball/0.1',
+    classifiers=[
+        'Environment :: Web Environment',
+        'Intended Audience :: Developers',
+        'Intended Audience :: Information Technology',
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python',
+        'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
+        'Topic :: Software Development',
     ]
-    for URL in files:
-        path = urllib.parse.urlsplit(URL).path
-        filename = os.path.basename(path)
-        path = os.path.join(rdir, filename)
-        if not os.path.exists(path):
-            print("downloading ", URL)
-            urllib.request.urlretrieve(URL, path)
+)
