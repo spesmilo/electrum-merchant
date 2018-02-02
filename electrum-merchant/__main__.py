@@ -63,10 +63,10 @@ def main():
         log.error("Unknown network, exiting...")
         exit(1)
     rdir = config.get('requests_dir')
-    sdir = os.path.join(rdir, 'static')
     if not rdir:
         log.error("requests_dir not found in Electrum configuration, exiting...")
         exit(1)
+    sdir = os.path.join(rdir, 'static')
     if not os.path.exists(rdir):
         os.mkdir(rdir)
     if not os.path.exists(sdir):
