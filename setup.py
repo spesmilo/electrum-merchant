@@ -22,11 +22,11 @@ setup(
     author_email='electrum@random.re',
     url='https://github.com/spesmilo/electrum-merchant',
     license='MIT',
-    keywords='electrum, bitcoin, payment, merchant',
+    keywords='electrum, bitcoin, litecoin, payment, merchant',
     zip_safe=False,
     include_package_data=True,
     platforms='any',
-    download_url = 'https://github.com/spesmilo/electrum-merchant/tarball/0.1',
+    download_url = 'https://github.com/spesmilo/electrum-merchant/tarball/0.2',
     classifiers=[
         'Environment :: Web Environment',
         'Intended Audience :: Developers',

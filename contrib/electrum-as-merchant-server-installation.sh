@@ -17,7 +17,7 @@ function jsonValue() {
 }
 
 ####
-# apt install python3-pip python3-wheel python3-setuptools python3-dev virtualenvwrapper
+# apt install python3-pip python3-wheel python3-setuptools python3-dev virtualenvwrapper pkg-config
 ####
 
 echo ""
@@ -27,7 +27,7 @@ echo "as a merchant daemon with websockets activated."
 echo ""
 echo "Before you start using this script, you need to prepare your system."
 echo "1) As root, install mandatory packages:"
-echo "   # apt install python3-pip python3-wheel python3-setuptools python3-dev"
+echo "   # apt install python3-pip python3-wheel python3-setuptools python3-dev pkg-config dh-autoreconf libssl-dev libusb-1.0-0-dev libudev-dev"
 echo "2) As root, Unblock firewall to access Electrum servers ports, usually:"
 echo "   50000-50010 and/or 51000-51010 (testnet)"
 echo "   After running this script you will also need to unblock incoming traffic"
@@ -65,11 +65,12 @@ git clone $GIT electrum
 cd ~/electrum
 
 git clone https://github.com/dpallot/simple-websocket-server
+
 mv simple-websocket-server/SimpleWebSocketServer . || true
 
 echo "Installing python environment"
-#mkvirtualenv -p /usr/bin/python3 electrum
-pip3 install -r contrib/requirements.txt
+pip3 install .[full]
+pip3 install npmdownloader
 
 echo ""
 echo "Electrum RPC will listen on port $RPCRANDOM." 
@@ -135,6 +136,7 @@ if [ $ELECTRUM = "EBOT" ] || [ $ELECTRUM = "ELT" ]; then
 	echo ""
 	echo "You want to operate on Testnet."
 	TESTNET="--testnet"
+	NETWORK="--network=testnet"
 fi
 
 # Creating requests directory
@@ -174,6 +176,15 @@ RPCPASSWORD=`echo $config|jsonValue rpcpassword`
 
 # getting primary interface IP number for RPC access
 IPNO=`/sbin/ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1'`
+
+# electrum merchant from sources and finish configuration
+git clone https://github.com/spesmilo/electrum-merchant/
+
+# simplified versions of installation scripts
+cp electrum-merchant/contrib/electrum-as-merchant-server-installation-helper.py .
+cp electrum-merchant/electrum-merchant/logger.py .
+
+python3 electrum-as-merchant-server-installation-helper.py $NETWORK
 
 echo ""
 echo "Preparing and writing systemd service file to $USER.service."

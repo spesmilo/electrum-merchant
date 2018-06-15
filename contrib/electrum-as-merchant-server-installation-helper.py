@@ -9,9 +9,9 @@ import sys
 import tarfile
 import zipfile
 from npmdownloader import NpmPackageDownloader
-from .logger import log
+from logger import log
 
-_ROOT = os.path.abspath(os.path.dirname(__file__))
+_ROOT = os.path.abspath('electrum-merchant/electrum-merchant')
 
 def get_data(path):
     return os.path.join(_ROOT, path)
@@ -57,15 +57,7 @@ def main():
     )
     args = parser.parse_args()
 
-    if args.blockchain == "BTC":
-        from electrum import SimpleConfig
-    elif args.blockchain == "LTC":
-        from electrum_ltc import SimpleConfig
-    else:
-        log.error("Unknown blockchain, exiting...")
-        exit(1)
-
-    log.info('Downloading and installing files into request directory')
+    from lib.simple_config import SimpleConfig
     if args.network == "mainnet":
         config = SimpleConfig()
     elif args.network == "testnet":
@@ -83,19 +75,16 @@ def main():
         os.mkdir(rdir)
     if not os.path.exists(sdir):
         os.mkdir(sdir)
-
     # Copying the flavoured index.html
     log.info("copying index.html from flavour %s" % args.flavour)
     indexsrc = get_data(args.flavour + "/index.html")
     indexdst = os.path.join(rdir, 'index.html')
     shutil.copy(indexsrc, indexdst)
-
     # Downloading libraries from NPM registry and unpacking them
     downloader = NpmPackageDownloader(sdir)
     downloader.download('jquery')
     downloader.download('qrcodejs')
     walkFiles(sdir)
-
     # Downloading libraries from other sources and unpacking them
     # jquery-ui
     r = requests.get("https://code.jquery.com/ui/1.12.1/jquery-ui.min.js")
@@ -121,7 +110,6 @@ def main():
         log.info('Downloaded Jquery-UI themes.')
     else:
         log.error('Problems with downloading Jquery-UI themes.')
-
     # Finally :-)
     log.info('Finished.')
 
