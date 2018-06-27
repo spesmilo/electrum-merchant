@@ -163,7 +163,7 @@ if [ $ELECTRUM = "ECT" ]; then
 fi
 
 # if you use a proxy, as me:
-python3 ./electrum $TESTNET setconfig proxy "socks5:10.73.1.5:9050::"
+#python3 ./electrum $TESTNET setconfig proxy "socks5:10.73.1.5:9050::"
 
 echo "Accessing your read-only wallet..."
 python3 ./electrum $TESTNET restore $WALLET
