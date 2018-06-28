@@ -157,10 +157,11 @@ WSNAME=`echo $INTERNET_URI | cut -d/ -f3`
 
 mkdir ~/"$USER" || true
 
-if [ $ELECTRUM = "ECT" ]; then
-	# Bitcoin cash default testnet servers are nonexistent
-	python3 ./electrum $TESTNET setconfig server "bcht.random.re:53002:s"
-fi
+# if you need to specify your own electrum servers, do it like this:
+#if [ $ELECTRUM = "ECT" ]; then
+#	# Bitcoin cash default testnet servers are nonexistent
+#	python3 ./electrum $TESTNET setconfig server "bcht.random.re:53002:s"
+#fi
 
 # if you use a proxy, as me:
 #python3 ./electrum $TESTNET setconfig proxy "socks5:10.73.1.5:9050::"
