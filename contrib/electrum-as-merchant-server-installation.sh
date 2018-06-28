@@ -220,9 +220,9 @@ After=multi-user.target
 After=network.target
 
 [Service]
-ExecStart=python3 /home/$USER/electrum/electrum $TESTNET daemon start
-ExecStop=python3 /home/$USER/electrum/electrum $TESTNET daemon stop
-ExecStartPost=python3 /home/$USER/electrum/electrum daemon load_wallet
+ExecStart=/usr/bin/python3 /home/$USER/electrum/electrum $TESTNET daemon start
+ExecStop=/usr/bin/python3 /home/$USER/electrum/electrum $TESTNET daemon stop
+ExecStartPost=/usr/bin/python3 /home/$USER/electrum/electrum $TESTNET daemon load_wallet
 Type=forking
 User=${USER}
 RestartSec=10s
