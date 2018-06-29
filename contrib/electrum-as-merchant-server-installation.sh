@@ -169,12 +169,12 @@ mkdir ~/"$USER" || true
 echo "Accessing your read-only wallet..."
 python3 ./electrum $TESTNET restore $WALLET
 echo "Configuring Electrum daemon..."
-python3 ./electrum $TESTNET setconfig requests_dir "/home/$USER/$USER"
+python3 ./electrum $TESTNET setconfig requests_dir "/home/$USER/$USER/"
 python3 ./electrum $TESTNET setconfig rpchost "0.0.0.0"
 python3 ./electrum $TESTNET setconfig rpcport $RPCPORT
 python3 ./electrum $TESTNET setconfig websocket_port $WSPORT
 python3 ./electrum $TESTNET setconfig websocket_server "0.0.0.0"
-python3 ./electrum $TESTNET setconfig url_rewrite "[ 'file:///home/$USER/$USER/', '$INTERNET_URI' ]"
+python3 ./electrum $TESTNET setconfig url_rewrite '[ "file:///home/$USER/$USER/", "$INTERNET_URI" ]'
 python3 ./electrum $TESTNET setconfig ssl_chain "$SSL_CHAIN"
 python3 ./electrum $TESTNET setconfig ssl_privkey "$SSL_KEY"
 python3 ./electrum $TESTNET setconfig websocket_server_announce "$WSNAME"
