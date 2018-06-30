@@ -178,10 +178,11 @@ python3 ./electrum $TESTNET setconfig url_rewrite '[ "file:///home/$USER/$USER/"
 python3 ./electrum $TESTNET setconfig ssl_chain "$SSL_CHAIN"
 python3 ./electrum $TESTNET setconfig ssl_privkey "$SSL_KEY"
 python3 ./electrum $TESTNET setconfig websocket_server_announce "$WSNAME"
+python3 ./electrum $TESTNET setconfig use_labels true
 # eventual additional config is up to you
 #python3 ./electrum $TESTNET setconfig
 
-echo "Running Electrum daemon for first time, to get a random RPC password..."
+echo "Running Electrum daemon initially, only to get a random RPC password..."
 # Faking a file temporary to pass through electrum's hard warning.
 touch /home/$USER/$USER/index.html
 python3 ./electrum $TESTNET daemon start
