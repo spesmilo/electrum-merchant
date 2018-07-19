@@ -72,9 +72,7 @@ echo "Getting sources..."
 git clone $GIT electrum
 cd ~/electrum
 
-git clone https://github.com/dpallot/simple-websocket-server
-
-mv simple-websocket-server/SimpleWebSocketServer . || true
+pip3 install git+https://github.com/dpallot/simple-websocket-server.git
 
 echo "Installing python environment"
 pip3 install .[full]
@@ -178,7 +176,7 @@ mkdir ~/"$USER" || true
 #fi
 
 # if you use a proxy, as me:
-electrum $TESTNET setconfig proxy "socks5:10.73.1.5:9050::"
+#electrum $TESTNET setconfig proxy "socks5:10.73.1.5:9050::"
 
 echo "Accessing your read-only wallet..."
 electrum $TESTNET restore $WALLET
@@ -232,9 +230,9 @@ After=multi-user.target
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/python3 /home/$USER/.local/bin/electrum/electrum $TESTNET daemon start
-ExecStop=/usr/bin/python3 /home/$USER/.local/bin/electrum/electrum $TESTNET daemon stop
-ExecStartPost=/usr/bin/python3 /home/$USER/.local/bin/electrum/electrum $TESTNET daemon load_wallet
+ExecStart=/home/$USER/.local/bin/electrum $TESTNET daemon start
+ExecStop=/home/$USER/.local/bin/electrum $TESTNET daemon stop
+ExecStartPost=/home/$USER/.local/bin/electrum $TESTNET daemon load_wallet
 Type=forking
 User=${USER}
 RestartSec=10s
