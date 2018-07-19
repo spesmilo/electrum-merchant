@@ -53,7 +53,7 @@ def main():
     )
     parser.add_argument(
         '-b', '--blockchain', nargs='?', required=False, default="BTC",
-        help='Which blockchain we use [BTC, LTC]'
+        help='Which blockchain we use [BTC, LTC, BCH, DASH]'
     )
     args = parser.parse_args()
 
@@ -61,6 +61,10 @@ def main():
         from electrum import SimpleConfig
     elif args.blockchain == "LTC":
         from electrum_ltc import SimpleConfig
+    elif args.blockchain == "BCH":
+        from electroncash import SimpleConfig
+    elif args.blockchain == "DASH":
+        from electrum_dash import SimpleConfig
     else:
         log.error("Unknown blockchain, exiting...")
         exit(1)
