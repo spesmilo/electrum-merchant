@@ -57,36 +57,11 @@ def main():
     )
     args = parser.parse_args()
 
-    if args.blockchain == "BTC":
-        from electrum import SimpleConfig
-    elif args.blockchain == "LTC":
-        from electrum_ltc import SimpleConfig
-    elif args.blockchain == "BCH":
-        from electroncash import SimpleConfig
-    elif args.blockchain == "DASH":
-        from electrum_dash import SimpleConfig
-    else:
-        log.error("Unknown blockchain, exiting...")
-        exit(1)
+    log.info('Downloading and installing files into www directory')
 
-    log.info('Downloading and installing files into request directory')
-    if args.network == "mainnet":
-        config = SimpleConfig()
-    elif args.network == "testnet":
-        config = SimpleConfig(options = {'testnet': True})
-    else:
-        log.error("Unknown network, exiting...")
-        exit(1)
-
-    rdir = config.get('requests_dir')
-    if not rdir:
-        log.error("requests_dir not found in Electrum configuration, exiting...")
-        exit(1)
-    sdir = os.path.join(rdir, 'static')
+    rdir = os.path.join(os.path.abspath("."), "static")
     if not os.path.exists(rdir):
         os.mkdir(rdir)
-    if not os.path.exists(sdir):
-        os.mkdir(sdir)
 
     # Copying the flavoured index.html
     log.info("copying index.html from flavour %s" % args.flavour)
@@ -95,16 +70,33 @@ def main():
     shutil.copy(indexsrc, indexdst)
 
     # Downloading libraries from NPM registry and unpacking them
-    downloader = NpmPackageDownloader(sdir)
+    downloader = NpmPackageDownloader(rdir)
     downloader.download('jquery')
-    downloader.download('qrcodejs')
-    walkFiles(sdir)
+    walkFiles(rdir)
+
+    qdir = os.path.join(rdir, 'qrcodejs')
+    if not os.path.exists(qdir):
+        os.mkdir(qdir)
+
+    qdir = os.path.join(qdir, 'package')
+    if not os.path.exists(qdir):
+        os.mkdir(qdir)
+
+    # using a qrcodejs fork because it has a bug fixed that disallows
+    # lengths of data that can occur as lightning invoices
+    r = requests.get("https://raw.githubusercontent.com/KeeeX/qrcodejs/1c87e7fbee2da04ae6c404ad13f9522ea8c9120c/qrcode.min.js")
+    if r.status_code == 200:
+        with open(os.path.join(qdir, 'qrcode.js'), 'w') as f:
+            f.write(r.text)
+            log.info('Downloaded KeeeX/QRcodeJS.')
+    else:
+        log.error('Problems with downloading KeeeX/QRcodeJS.')
 
     # Downloading libraries from other sources and unpacking them
     # jquery-ui
     r = requests.get("https://code.jquery.com/ui/1.12.1/jquery-ui.min.js")
     if r.status_code == 200:
-        with open(os.path.join(sdir, 'jquery-ui.min.js'), 'w') as f:
+        with open(os.path.join(rdir, 'jquery-ui.min.js'), 'w') as f:
             f.write(r.text)
             log.info('Downloaded Jquery-UI.')
     else:
@@ -112,7 +104,7 @@ def main():
     # jquery-ui-fix-3
     r = requests.get("https://code.jquery.com/jquery-migrate-3.0.1.min.js")
     if r.status_code == 200:
-        with open(os.path.join(sdir, 'jquery-migrate-3.0.1.js'), 'w') as f:
+        with open(os.path.join(rdir, 'jquery-migrate-3.0.1.js'), 'w') as f:
             f.write(r.text)
             log.info('Downloaded Jquery-UI 3.x fix.')
     else:
@@ -121,7 +113,7 @@ def main():
     r = requests.get("https://jqueryui.com/resources/download/jquery-ui-themes-1.12.1.zip")
     if r.status_code == 200:
         z = zipfile.ZipFile(io.BytesIO(r.content))
-        z.extractall(sdir)
+        z.extractall(rdir)
         log.info('Downloaded Jquery-UI themes.')
     else:
         log.error('Problems with downloading Jquery-UI themes.')

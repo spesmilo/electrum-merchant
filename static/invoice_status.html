@@ -1,0 +1,24 @@
+<!doctype html>
+<head>
+<script src="qrcodejs/package/qrcode.js"></script>
+<body>
+<div id=status>waiting for websocket to open</div>
+<div id="qrcode" style="margin-top:15px;"></div>
+<script>
+var qrcode = new QRCode(document.getElementById('qrcode'), {
+  width : 400,
+  height : 400
+});
+const invoice = window.location.search.substring(1);
+qrcode.makeCode(invoice);
+const websocket = new WebSocket((document.URL.startsWith('https') ? 'wss' : 'ws') + '://' + window.location.host + '/api/ln/invoice_status?' + invoice);
+websocket.addEventListener('open', (evt) => {
+  document.getElementById('status').textContent = 'waiting for payment, please pay to the Lightning invoice below';
+});
+websocket.addEventListener('message', (evt) => {
+  document.getElementById('status').textContent = evt.data;
+});
+websocket.addEventListener('error', (evt) => {
+  document.getElementById('status').textContent = 'websocket related error, try reloading the page'
+});
+</script>
