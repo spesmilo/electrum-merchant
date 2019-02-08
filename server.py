@@ -1,7 +1,9 @@
 import asyncio
 from collections import defaultdict
 import datetime
-import sys, os
+import json
+import os
+import sys
 import time
 
 import aiohttp
@@ -24,14 +26,13 @@ user_dir = sys.argv[1]
 
 assert os.path.exists(user_dir)
 
-constants.set_testnet()
+constants.set_regtest()
 config = SimpleConfig({
     #"dynamic_fees": False,
     "auto_connect": False,
     "oneserver": True,
-    "server": "testnet.qtornado.com:51001:t",
-    "lightning_listen": "127.0.0.1:9735",
-    "testnet": True,
+    "server": "localhost:51001:t",
+    "regtest": True,
     }, read_user_dir_function=lambda: user_dir)
 actual = Daemon(config)
 assert actual.network.asyncio_loop.is_running()
@@ -99,9 +100,16 @@ async def ln_websocket_handler(request):
 
     return ws
 
-from electrum.websockets import request_queue, BalanceMonitor
-
-balance_monitor = BalanceMonitor(config, wallet.network)
+def read_request(request_id):
+    global rdir
+    # read json file
+    n = os.path.join(rdir, 'req', request_id[0], request_id[1], request_id, request_id + '.json')
+    with open(n, encoding='utf-8') as f:
+        s = f.read()
+    d = json.loads(s)
+    addr = d.get('address')
+    amount = d.get('amount')
+    return addr, amount
 
 async def bip70_websocket_handler(request):
     ws = web.WebSocketResponse()
@@ -111,7 +119,12 @@ async def bip70_websocket_handler(request):
             if not msg.data.startswith('id:'):
                 ws.close()
                 break
-            await request_queue.put((ws, msg.data[3:]))
+            req_id = msg.data[3:]
+            addr, amount = read_request(req_id)
+            while sum(wallet.get_addr_balance(addr)) < amount:
+                await wallet.wait_for_address_history_to_change(addr)
+            await ws.send_str('paid')
+            await ws.close()
         elif msg.type == aiohttp.WSMsgType.ERROR:
             print('ws connection closed with exception %s' %
                   ws.exception())
@@ -141,7 +154,7 @@ runner = AppRunner(app, handle_signals=False,
 
 asyncio.run_coroutine_threadsafe(runner.setup(), actual.network.asyncio_loop).result()
 
-host, port = "127.0.0.1", 8080
+host, port = "127.0.0.1", 8000
 site = TCPSite(runner, port=port, host=host)
 asyncio.run_coroutine_threadsafe(site.start(), actual.network.asyncio_loop).result()
 while True:

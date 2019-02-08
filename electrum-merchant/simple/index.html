@@ -84,11 +84,19 @@ if (id) {
             }
             else alert("Message is received:"+ received_msg);
         };
+        ws.onerror = function () {
+            console.log("error ws.onerror");
+            $("<p />").text("error with websocket. try reloading this page").appendTo($("p#error"));
+        };
+        ws.onclose = function () {
+            console.log("error ws.onclose");
+            $("<p />").text("error with websocket: socket was closed. try reloading this page").appendTo($("p#error"));
+        };
 
     })
     .fail(function() {
-        console.log("error fail");
-        $("<p />").text("error").appendTo($("p#error"));
+        console.log("error fail while fetching invoice json");
+        $("<p />").text("error while fetching invoice json. try reloading this page").appendTo($("p#error"));
     });
 };
 
